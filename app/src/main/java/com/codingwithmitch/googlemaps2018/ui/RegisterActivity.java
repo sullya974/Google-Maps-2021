@@ -2,10 +2,10 @@ package com.codingwithmitch.googlemaps2018.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
+//import android.support.annotation.NonNull;
+//import android.support.annotation.Nullable;
+//import android.support.design.widget.Snackbar;
+//import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -13,10 +13,15 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.codingwithmitch.googlemaps2018.R;
 import com.codingwithmitch.googlemaps2018.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -66,52 +71,87 @@ public class RegisterActivity extends AppCompatActivity implements
         showDialog();
 
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "createUserWithEmail:onComplete:" + task.isSuccessful());
+                .addOnCompleteListener(task -> {
+                    Log.d(TAG, "createUserWithEmail:onComplete:" + task.isSuccessful());
 
-                        if (task.isSuccessful()){
-                            Log.d(TAG, "onComplete: AuthState: " + FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    task.addOnSuccessListener(unused -> {
+                        Log.d(TAG, "onComplete: AuthState: " + FirebaseAuth.getInstance().getCurrentUser().getUid());
 
-                            //insert some default data
-                            User user = new User();
-                            user.setEmail(email);
-                            user.setUsername(email.substring(0, email.indexOf("@")));
-                            user.setUser_id(FirebaseAuth.getInstance().getUid());
+                        //insert some default data
+                        User user = new User();
+                        user.setEmail(email);
+                        user.setUsername(email.substring(0, email.indexOf("@")));
+                        user.setUser_id(FirebaseAuth.getInstance().getUid());
 
-                            FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-                                    .setTimestampsInSnapshotsEnabled(true)
-                                    .build();
-                            mDb.setFirestoreSettings(settings);
+                        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+//                                    .setTimestampsInSnapshotsEnabled(true)
+                                .build();
+                        mDb.setFirestoreSettings(settings);
 
-                            DocumentReference newUserRef = mDb
-                                    .collection(getString(R.string.collection_users))
-                                    .document(FirebaseAuth.getInstance().getUid());
+                        DocumentReference newUserRef = mDb
+                                .collection(getString(R.string.collection_users))
+                                .document(FirebaseAuth.getInstance().getUid());
 
-                            newUserRef.set(user).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    hideDialog();
+                        newUserRef.set(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                hideDialog();
 
-                                    if(task.isSuccessful()){
-                                        redirectLoginScreen();
-                                    }else{
-                                        View parentLayout = findViewById(android.R.id.content);
-                                        Snackbar.make(parentLayout, "Something went wrong.", Snackbar.LENGTH_SHORT).show();
-                                    }
+                                if(task.isSuccessful()){
+                                    redirectLoginScreen();
+                                }else{
+                                    View parentLayout = findViewById(android.R.id.content);
+                                    Snackbar.make(parentLayout, "1 - Something went wrong.", Snackbar.LENGTH_SHORT).show();
                                 }
-                            });
+                            }
+                        });
+                    }).addOnFailureListener((Exception exception) ->{
+                        View parentLayout = findViewById(android.R.id.content);
+                        Log.e(TAG, "registerNewEmail: " + exception.getMessage());
+                        Snackbar.make(parentLayout, "2 - Something went wrong.", Snackbar.LENGTH_SHORT).show();
+                        hideDialog();
+                    });
 
-                        }
-                        else {
-                            View parentLayout = findViewById(android.R.id.content);
-                            Snackbar.make(parentLayout, "Something went wrong.", Snackbar.LENGTH_SHORT).show();
-                            hideDialog();
-                        }
+//                    if (task.isSuccessful()){
+//                        Log.d(TAG, "onComplete: AuthState: " + FirebaseAuth.getInstance().getCurrentUser().getUid());
+//
+//                        //insert some default data
+//                        User user = new User();
+//                        user.setEmail(email);
+//                        user.setUsername(email.substring(0, email.indexOf("@")));
+//                        user.setUser_id(FirebaseAuth.getInstance().getUid());
+//
+//                        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+////                                    .setTimestampsInSnapshotsEnabled(true)
+//                                .build();
+//                        mDb.setFirestoreSettings(settings);
+//
+//                        DocumentReference newUserRef = mDb
+//                                .collection(getString(R.string.collection_users))
+//                                .document(FirebaseAuth.getInstance().getUid());
+//
+//                        newUserRef.set(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                            @Override
+//                            public void onComplete(@NonNull Task<Void> task) {
+//                                hideDialog();
+//
+//                                if(task.isSuccessful()){
+//                                    redirectLoginScreen();
+//                                }else{
+//                                    View parentLayout = findViewById(android.R.id.content);
+//                                    Snackbar.make(parentLayout, "1 - Something went wrong.", Snackbar.LENGTH_SHORT).show();
+//                                }
+//                            }
+//                        });
+//
+//                    }
+//                    else {
+//                        View parentLayout = findViewById(android.R.id.content);
+//                        Snackbar.make(parentLayout, "2 - Something went wrong.", Snackbar.LENGTH_SHORT).show();
+//                        hideDialog();
+//                    }
 
-                        // ...
-                    }
+                    // ...
                 });
     }
 
