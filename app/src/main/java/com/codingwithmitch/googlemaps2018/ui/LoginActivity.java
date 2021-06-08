@@ -20,6 +20,7 @@ import com.codingwithmitch.googlemaps2018.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -39,8 +40,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import static android.text.TextUtils.isEmpty;
 
 public class LoginActivity extends AppCompatActivity implements
-        View.OnClickListener
-{
+        View.OnClickListener {
 
     private static final String TAG = "LoginActivity";
 
@@ -67,27 +67,25 @@ public class LoginActivity extends AppCompatActivity implements
     }
 
 
-
-
-    private void showDialog(){
+    private void showDialog() {
         mProgressBar.setVisibility(View.VISIBLE);
 
     }
 
-    private void hideDialog(){
-        if(mProgressBar.getVisibility() == View.VISIBLE){
+    private void hideDialog() {
+        if (mProgressBar.getVisibility() == View.VISIBLE) {
             mProgressBar.setVisibility(View.INVISIBLE);
         }
     }
 
-    private void hideSoftKeyboard(){
+    private void hideSoftKeyboard() {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
     /*
         ----------------------------- Firebase setup ---------------------------------
      */
-    private void setupFirebaseAuth(){
+    private void setupFirebaseAuth() {
         Log.d(TAG, "setupFirebaseAuth: started.");
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -110,11 +108,18 @@ public class LoginActivity extends AppCompatActivity implements
                     userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if(task.isSuccessful()){
+                            task.addOnSuccessListener(unused -> {
                                 Log.d(TAG, "onComplete: successfully set the user client.");
                                 User user = task.getResult().toObject(User.class);
-                                ((UserClient)(getApplicationContext())).setUser(user);
-                            }
+                                ((UserClient) (getApplicationContext())).setUser(user);
+                            }).addOnFailureListener((Exception exception) -> {
+                                Log.e(TAG, "onComplete: " + exception.getMessage());
+                            });
+//                            if(task.isSuccessful()){
+//                                Log.d(TAG, "onComplete: successfully set the user client.");
+//                                User user = task.getResult().toObject(User.class);
+//                                ((UserClient)(getApplicationContext())).setUser(user);
+//                            }
                         }
                     });
 
@@ -146,10 +151,10 @@ public class LoginActivity extends AppCompatActivity implements
         }
     }
 
-    private void signIn(){
+    private void signIn() {
         //check if the fields are filled out
-        if(!isEmpty(mEmail.getText().toString())
-                && !isEmpty(mPassword.getText().toString())){
+        if (!isEmpty(mEmail.getText().toString())
+                && !isEmpty(mPassword.getText().toString())) {
             Log.d(TAG, "onClick: attempting to authenticate.");
 
             showDialog();
@@ -170,23 +175,23 @@ public class LoginActivity extends AppCompatActivity implements
                     hideDialog();
                 }
             });
-        }else{
+        } else {
             Toast.makeText(LoginActivity.this, "You didn't fill in all the fields.", Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
-            case R.id.link_register:{
+        switch (view.getId()) {
+            case R.id.link_register: {
                 Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
                 startActivity(intent);
                 break;
             }
 
-            case R.id.email_sign_in_button:{
-               signIn();
-               break;
+            case R.id.email_sign_in_button: {
+                signIn();
+                break;
             }
         }
     }

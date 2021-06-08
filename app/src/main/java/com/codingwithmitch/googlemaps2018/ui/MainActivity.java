@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.codingwithmitch.googlemaps2018.R;
 import com.codingwithmitch.googlemaps2018.adapters.ChatroomRecyclerAdapter;
 import com.codingwithmitch.googlemaps2018.models.Chatroom;
+import com.codingwithmitch.googlemaps2018.models.User;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -166,12 +167,19 @@ public class MainActivity extends AppCompatActivity implements
             public void onComplete(@NonNull Task<Void> task) {
                 hideDialog();
 
-                if(task.isSuccessful()){
+                task.addOnSuccessListener(unused -> {
                     navChatroomActivity(chatroom);
-                }else{
+                }).addOnFailureListener((Exception exception) ->{
                     View parentLayout = findViewById(android.R.id.content);
                     Snackbar.make(parentLayout, "Something went wrong.", Snackbar.LENGTH_SHORT).show();
-                }
+                });
+
+//                if(task.isSuccessful()){
+//                    navChatroomActivity(chatroom);
+//                }else{
+//                    View parentLayout = findViewById(android.R.id.content);
+//                    Snackbar.make(parentLayout, "Something went wrong.", Snackbar.LENGTH_SHORT).show();
+//                }
             }
         });
     }

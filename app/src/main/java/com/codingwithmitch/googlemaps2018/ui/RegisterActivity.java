@@ -33,8 +33,7 @@ import static com.codingwithmitch.googlemaps2018.util.Check.doStringsMatch;
 
 
 public class RegisterActivity extends AppCompatActivity implements
-        View.OnClickListener
-{
+        View.OnClickListener {
     private static final String TAG = "RegisterActivity";
 
     //widgets
@@ -63,10 +62,11 @@ public class RegisterActivity extends AppCompatActivity implements
 
     /**
      * Register a new email and password to Firebase Authentication
+     *
      * @param email
      * @param password
      */
-    public void registerNewEmail(final String email, String password){
+    public void registerNewEmail(final String email, String password) {
 
         showDialog();
 
@@ -97,15 +97,21 @@ public class RegisterActivity extends AppCompatActivity implements
                             public void onComplete(@NonNull Task<Void> task) {
                                 hideDialog();
 
-                                if(task.isSuccessful()){
+                                task.addOnSuccessListener(unused -> {
                                     redirectLoginScreen();
-                                }else{
+                                }).addOnFailureListener((Exception exception) -> {
                                     View parentLayout = findViewById(android.R.id.content);
                                     Snackbar.make(parentLayout, "1 - Something went wrong.", Snackbar.LENGTH_SHORT).show();
-                                }
+                                });
+//                                if(task.isSuccessful()){
+//                                    redirectLoginScreen();
+//                                }else{
+//                                    View parentLayout = findViewById(android.R.id.content);
+//                                    Snackbar.make(parentLayout, "1 - Something went wrong.", Snackbar.LENGTH_SHORT).show();
+//                                }
                             }
                         });
-                    }).addOnFailureListener((Exception exception) ->{
+                    }).addOnFailureListener((Exception exception) -> {
                         View parentLayout = findViewById(android.R.id.content);
                         Log.e(TAG, "registerNewEmail: " + exception.getMessage());
                         Snackbar.make(parentLayout, "2 - Something went wrong.", Snackbar.LENGTH_SHORT).show();
@@ -158,7 +164,7 @@ public class RegisterActivity extends AppCompatActivity implements
     /**
      * Redirects the user to the login screen
      */
-    private void redirectLoginScreen(){
+    private void redirectLoginScreen() {
         Log.d(TAG, "redirectLoginScreen: redirecting to login screen.");
 
         Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
@@ -167,42 +173,42 @@ public class RegisterActivity extends AppCompatActivity implements
     }
 
 
-    private void showDialog(){
+    private void showDialog() {
         mProgressBar.setVisibility(View.VISIBLE);
 
     }
 
-    private void hideDialog(){
-        if(mProgressBar.getVisibility() == View.VISIBLE){
+    private void hideDialog() {
+        if (mProgressBar.getVisibility() == View.VISIBLE) {
             mProgressBar.setVisibility(View.INVISIBLE);
         }
     }
 
-    private void hideSoftKeyboard(){
+    private void hideSoftKeyboard() {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
-            case R.id.btn_register:{
+        switch (view.getId()) {
+            case R.id.btn_register: {
                 Log.d(TAG, "onClick: attempting to register.");
 
                 //check for null valued EditText fields
-                if(!isEmpty(mEmail.getText().toString())
+                if (!isEmpty(mEmail.getText().toString())
                         && !isEmpty(mPassword.getText().toString())
-                        && !isEmpty(mConfirmPassword.getText().toString())){
+                        && !isEmpty(mConfirmPassword.getText().toString())) {
 
                     //check if passwords match
-                    if(doStringsMatch(mPassword.getText().toString(), mConfirmPassword.getText().toString())){
+                    if (doStringsMatch(mPassword.getText().toString(), mConfirmPassword.getText().toString())) {
 
                         //Initiate registration task
                         registerNewEmail(mEmail.getText().toString(), mPassword.getText().toString());
-                    }else{
+                    } else {
                         Toast.makeText(RegisterActivity.this, "Passwords do not Match", Toast.LENGTH_SHORT).show();
                     }
 
-                }else{
+                } else {
                     Toast.makeText(RegisterActivity.this, "You must fill out all the fields", Toast.LENGTH_SHORT).show();
                 }
                 break;
