@@ -33,7 +33,7 @@ public class UserListFragment extends Fragment {
 
     //vars
     private ArrayList<User> mUserList = new ArrayList<>();
-    private UserRecyclerAdapter mUserRecyclerAdapter;
+    private UserRecyclerAdapter mUserRecyclerAdapter;//Hello
 
 
     public static UserListFragment newInstance(){
